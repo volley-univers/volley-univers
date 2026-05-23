@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volley Univers — Quiz & Découverte</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ============ NAVIGATION ============ -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#accueil" class="logo">
+                <span class="logo-ball">🏐</span>
+                <span class="logo-text">VOLLEY<span class="logo-accent">UNIVERS</span></span>
+            </a>
+            <nav>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="#accueil">Accueil</a></li>
+                    <li><a href="#presentation">Volleyball</a></li>
+                    <li><a href="#quiz">Quiz</a></li>
+                    <!-- Sections cachées : visibles uniquement après déblocage -->
+                    <li class="hidden-section" id="nav-puydufou"><a href="#puydufou">🎭 Puy du Fou</a></li>
+                    <li class="hidden-section" id="nav-anecdotes"><a href="#anecdotes">✨ Anecdotes</a></li>
+                    <!-- Onglet Admin : visible uniquement pour l'admin -->
+                    <li class="hidden-section" id="nav-admin"><a href="#admin">⚙️ Admin</a></li>
+                    <!-- Onglet Compte (login/register quand déconnecté, profil quand connecté) -->
+                    <li id="nav-account">
+                        <a href="#" id="account-link">Se connecter</a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="burger" id="burger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ============ HERO / ACCUEIL ============ -->
+    <section id="accueil" class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <p class="hero-tag">SPORT · PASSION · STRATÉGIE</p>
+            <h1 class="hero-title">
+                <span class="word">SMASH</span>
+                <span class="word">SET</span>
+                <span class="word">VICTOIRE</span>
+            </h1>
+            <p class="hero-subtitle">
+                Plonge dans l'univers du volleyball : règles, technique, culture.
+                Et peut-être... découvre ce qui se cache derrière le filet.
+            </p>
+            <div class="hero-actions">
+                <a href="#quiz" class="btn btn-primary">Lancer le quiz</a>
+                <a href="#presentation" class="btn btn-ghost">En savoir plus</a>
+            </div>
+            <p class="hero-hint" id="hero-hint">💡 Connecte-toi pour sauvegarder tes découvertes...</p>
+        </div>
+    </section>
+
+    <!-- ============ PRÉSENTATION ============ -->
+    <section id="presentation" class="section">
+        <div class="container">
+            <h2 class="section-title">Le Volleyball</h2>
+            <p class="section-lead">Un sport collectif inventé en 1895 par William G. Morgan, devenu une discipline olympique mondiale.</p>
+            <div class="cards-grid">
+                <article class="card">
+                    <div class="card-icon">🏐</div>
+                    <h3>Les règles</h3>
+                    <p>Deux équipes de 6 joueurs séparées par un filet. Un set se gagne en 25 points avec 2 points d'écart. Le match se joue en 3 sets gagnants.</p>
+                </article>
+                <article class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Les techniques</h3>
+                    <p>Service, passe, attaque, contre, défense. Chaque touche compte : maximum trois touches par équipe avant de renvoyer le ballon.</p>
+                </article>
+                <article class="card">
+                    <div class="card-icon">🏆</div>
+                    <h3>Les compétitions</h3>
+                    <p>Jeux Olympiques, Championnats du Monde, Ligue des Nations. Le beach-volley est également discipline olympique depuis 1996.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ QUIZ ============ -->
+    <section id="quiz" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Quiz Volleyball</h2>
+            <p class="section-lead">Teste tes connaissances avec 8 questions interactives.</p>
+
+            <div class="quiz-box">
+                <div id="quiz-start" class="quiz-screen">
+                    <h3>Prêt à relever le défi ?</h3>
+                    <p>8 questions, mélange de choix multiples et de réponses numériques.</p>
+                    <button class="btn btn-primary" id="btn-start-quiz">Commencer</button>
+                </div>
+
+                <div id="quiz-question" class="quiz-screen hidden">
+                    <div class="quiz-header">
+                        <span id="question-counter">Question 1 / 8</span>
+                        <div class="quiz-progress"><div id="progress-bar"></div></div>
+                    </div>
+                    <h3 id="question-text">Question</h3>
+                    <div id="answers-container"></div>
+                    <div id="numeric-container" class="hidden">
+                        <input type="text" id="numeric-input" placeholder="Entre ta réponse..." inputmode="numeric">
+                        <button class="btn btn-primary" id="btn-submit-numeric">Valider</button>
+                    </div>
+                    <div id="feedback" class="quiz-feedback hidden"></div>
+                    <button class="btn btn-primary hidden" id="btn-next">Suivant →</button>
+                </div>
+
+                <div id="quiz-result" class="quiz-screen hidden">
+                    <h3>Résultat final</h3>
+                    <div class="score-circle">
+                        <span id="final-score">0</span>
+                        <small>/ 8</small>
+                    </div>
+                    <p id="score-message"></p>
+                    <button class="btn btn-primary" id="btn-restart">Recommencer</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SECTION SECRÈTE : PUY DU FOU ============ -->
+    <section id="puydufou" class="section section-secret hidden-section">
+        <div class="container">
+            <span class="secret-badge">🎭 SECTION SECRÈTE DÉBLOQUÉE</span>
+            <h2 class="section-title">Puy du Fou</h2>
+            <p class="section-lead">Bravo ! Tu as découvert la section cachée du parc le plus primé au monde.</p>
+            <!-- Les anecdotes Puy du Fou sont chargées dynamiquement depuis Firestore (catégorie "puydufou") -->
+            <div class="cards-grid" id="puydufou-grid">
+                <p class="loading-msg">Chargement...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SECTION SECRÈTE : ANECDOTES ============ -->
+    <section id="anecdotes" class="section section-secret hidden-section">
+        <div class="container">
+            <span class="secret-badge secret-badge-alt">✨ ANECDOTES DÉCOUVERTES</span>
+            <h2 class="section-title">Anecdotes secrètes</h2>
+            <p class="section-lead">Tu as trouvé le code caché. Voici des informations que peu de gens connaissent.</p>
+            <!-- Anecdotes chargées dynamiquement (catégorie "anecdote") -->
+            <div class="anecdotes-list" id="anecdotes-list">
+                <p class="loading-msg">Chargement...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ ADMIN PANEL (visible uniquement pour l'admin) ============ -->
+    <section id="admin" class="section section-admin hidden-section">
+        <div class="container">
+            <span class="admin-badge">⚙️ PANEL ADMINISTRATEUR</span>
+            <h2 class="section-title">Administration</h2>
+            <p class="section-lead">Ajoute, modifie ou supprime les anecdotes du site.</p>
+
+            <!-- Formulaire d'ajout -->
+            <div class="admin-form">
+                <h3>Ajouter une anecdote</h3>
+                <div class="form-row">
+                    <label>Catégorie</label>
+                    <select id="admin-category">
+                        <option value="puydufou">🎭 Puy du Fou</option>
+                        <option value="anecdote">✨ Anecdote secrète</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Titre</label>
+                    <input type="text" id="admin-title" placeholder="Ex: La Cinéscénie" maxlength="80">
+                </div>
+                <div class="form-row">
+                    <label>Texte</label>
+                    <textarea id="admin-text" placeholder="Description de l'anecdote..." rows="4" maxlength="500"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Icône (emoji) — optionnel</label>
+                    <input type="text" id="admin-icon" placeholder="🎭" maxlength="4">
+                </div>
+                <div class="form-row">
+                    <label>Image — optionnel (max 5 Mo)</label>
+                    <input type="file" id="admin-image" accept="image/*">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="btn-add-anecdote">Ajouter</button>
+                    <button class="btn btn-ghost hidden" id="btn-cancel-edit">Annuler</button>
+                </div>
+                <div id="admin-feedback" class="admin-feedback hidden"></div>
+            </div>
+
+            <!-- Liste des anecdotes existantes -->
+            <h3 class="admin-subtitle">Anecdotes existantes</h3>
+            <div class="admin-list" id="admin-list">
+                <p class="loading-msg">Chargement...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 · Volley Univers · Connecté à Firebase</p>
+            <p class="footer-hint">🔍 Indice : essaie une combinaison célèbre au clavier...</p>
+        </div>
+    </footer>
+
+    <!-- ============ MODAL : Authentification ============ -->
+    <div class="modal-overlay hidden" id="auth-modal">
+        <div class="modal">
+            <button class="modal-close" id="auth-close" aria-label="Fermer">×</button>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="login">Connexion</button>
+                <button class="modal-tab" data-tab="register">Inscription</button>
+            </div>
+
+            <!-- Onglet Login -->
+            <div class="modal-content" id="tab-login">
+                <h3>Bon retour 👋</h3>
+                <div class="form-row">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="ton@email.com">
+                </div>
+                <div class="form-row">
+                    <label>Mot de passe</label>
+                    <input type="password" id="login-password" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary btn-full" id="btn-login">Se connecter</button>
+                <p class="modal-error hidden" id="login-error"></p>
+            </div>
+
+            <!-- Onglet Register -->
+            <div class="modal-content hidden" id="tab-register">
+                <h3>Créer un compte</h3>
+                <p class="modal-hint">👑 Le premier inscrit devient administrateur du site.</p>
+                <div class="form-row">
+                    <label>Pseudo</label>
+                    <input type="text" id="register-name" placeholder="Ton pseudo" maxlength="30">
+                </div>
+                <div class="form-row">
+                    <label>Email</label>
+                    <input type="email" id="register-email" placeholder="ton@email.com">
+                </div>
+                <div class="form-row">
+                    <label>Mot de passe (6 caractères min.)</label>
+                    <input type="password" id="register-password" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary btn-full" id="btn-register">Créer le compte</button>
+                <p class="modal-error hidden" id="register-error"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL : Profil utilisateur ============ -->
+    <div class="modal-overlay hidden" id="profile-modal">
+        <div class="modal">
+            <button class="modal-close" id="profile-close" aria-label="Fermer">×</button>
+            <div class="profile-avatar" id="profile-avatar">?</div>
+            <h3 id="profile-name">Pseudo</h3>
+            <p class="profile-email" id="profile-email">email@...</p>
+            <p class="profile-role" id="profile-role"></p>
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="stat-value" id="stat-konami">❌</span>
+                    <span class="stat-label">Code Konami</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="stat-code">❌</span>
+                    <span class="stat-label">Code secret</span>
+                </div>
+            </div>
+            <button class="btn btn-ghost btn-full" id="btn-logout">Se déconnecter</button>
+        </div>
+    </div>
+
+    <!-- ============ TOAST ============ -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Firebase via CDN (modules) + script principal -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
