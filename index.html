@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volley Quiz — Teste ta connaissance du volley-ball</title>
+  <meta name="description" content="Quiz interactif sur le volley-ball avec 3 niveaux, comptes, progression et secrets cachés." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ============== HEADER ============== -->
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><span class="ball"></span> Volley Quiz</a>
+      <nav class="nav">
+        <a href="index.html" class="active">Accueil</a>
+        <a href="pages/quiz.html">Quiz</a>
+        <a href="pages/leaderboard.html">Classement</a>
+        <a href="pages/secret.html" data-secret-link style="display:none">✦ Secrets</a>
+      </nav>
+      <div class="user-zone" data-user-zone>
+        <!-- Rempli dynamiquement par ui.js -->
+      </div>
+      <button class="icon-btn" data-toggle-theme aria-label="Changer de thème">☾</button>
+    </div>
+  </header>
+
+  <!-- ============== HERO ============== -->
+  <main>
+    <section class="hero container">
+      <span class="hero-tagline">3 niveaux • progression sauvegardée • secrets cachés</span>
+      <h1>Le quiz volley-ball qui te pousse jusqu'au tie-break.</h1>
+      <p class="lead">
+        Des règles du jeu aux records mondiaux, en passant par les héros oubliés du parquet —
+        teste ce que tu sais vraiment du volley. Crée un compte pour conserver tes stats et
+        débloque les secrets cachés.
+      </p>
+      <div class="hero-actions">
+        <a href="pages/quiz.html" class="btn btn-accent">Lancer un quiz</a>
+        <a href="pages/login.html" class="btn btn-ghost" data-login-link>Créer un compte</a>
+      </div>
+    </section>
+
+    <!-- ============== BLOC XP / RANG / STREAK ============== -->
+    <section class="container reveal">
+      <h2 class="section-title">Ta progression</h2>
+
+      <div class="xp-bloc" id="xp-bloc" style="display:none">
+        <div class="xp-header">
+          <div class="xp-rang">
+            <div class="xp-emoji" id="xp-emoji">🧒</div>
+            <div class="xp-info">
+              <div class="label">Niveau <span id="xp-niveau">1</span></div>
+              <div class="nom" id="xp-nom">Ramasseur de balles</div>
+            </div>
+          </div>
+          <div class="xp-counter">
+            <div class="total" id="xp-total">0 XP</div>
+            <div class="label" id="xp-streak-zone"></div>
+          </div>
+        </div>
+        <div class="xp-bar">
+          <div class="xp-bar-fill" id="xp-bar-fill"></div>
+        </div>
+        <div class="xp-progress-text">
+          <span id="xp-progress-current">0 / 100 XP</span>
+          <span id="xp-progress-next">Prochain : Apprenti</span>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="label">Meilleur score</div>
+          <div class="value" data-stat="scoreMax">—</div>
+          <div class="icon">★</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Quiz terminés</div>
+          <div class="value" data-stat="quizTermines">—</div>
+          <div class="icon">▣</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Bonnes réponses</div>
+          <div class="value" data-stat="bonnesReponsesTotal">—</div>
+          <div class="icon">✓</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Temps moyen</div>
+          <div class="value" data-stat="tempsMoyenSec">—</div>
+          <div class="icon">⌚</div>
+        </div>
+      </div>
+      <p id="stats-info" style="margin-top:14px;color:var(--text-soft);font-size:0.9rem;">
+        Connecte-toi pour conserver ta progression sur tous tes appareils.
+      </p>
+    </section>
+
+    <!-- ============== BADGES ============== -->
+    <section class="container reveal" style="margin-top: 60px;">
+      <h2 class="section-title">Tes badges</h2>
+      <div class="badges-grid" id="badges-grid">
+        <!-- Rempli par JS -->
+      </div>
+    </section>
+
+    <!-- ============== LIEN VERS LEADERBOARD ============== -->
+    <section class="container reveal" style="margin-top: 60px;">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h3 style="font-family:'Bebas Neue', sans-serif;font-size:1.8rem;color:var(--primary);margin-bottom:4px;">Classement mondial</h3>
+          <p style="color:var(--text-soft);font-size:0.95rem;">Compare ton XP aux autres joueurs.</p>
+        </div>
+        <a href="pages/leaderboard.html" class="btn btn-primary">Voir le classement →</a>
+      </div>
+    </section>
+
+    <!-- ============== POURQUOI ============== -->
+    <section class="features-section container reveal">
+      <h2 class="section-title">Pourquoi tu vas accrocher</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <div class="emoji">🏐</div>
+          <h3>3 niveaux</h3>
+          <p>Du débutant qui apprend les règles à l'expert qui connaît les championnes italiennes par cœur.</p>
+        </div>
+        <div class="feature">
+          <div class="emoji">📈</div>
+          <h3>Progression sauvegardée</h3>
+          <p>Crée ton compte : score, nombre de quiz, temps moyen, tout est gardé.</p>
+        </div>
+        <div class="feature">
+          <div class="emoji">✦</div>
+          <h3>Secrets à débloquer</h3>
+          <p>Le site cache des choses. Active le bon combo et explore une dimension cachée du volley.</p>
+        </div>
+        <div class="feature">
+          <div class="emoji">🌗</div>
+          <h3>Thème clair / sombre</h3>
+          <p>Bascule en un clic. On retient ton choix pour la prochaine visite.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>Volley Quiz — Conçu pour s'entraîner et s'amuser.</p>
+      <p class="ko">Indice : sur cette page, un vieux code de console fait des miracles…</p>
+    </div>
+  </footer>
+
+  <!-- ============== SCRIPTS ============== -->
+  <script type="module">
+    import { initTheme, initHeader, initReveal } from "./js/ui.js";
+    import { initKonami, rafraichirMenuSecrets } from "./js/easteregg.js";
+    import { observerAuth } from "./js/auth.js";
+    import { getDonnees } from "./js/storage.js";
+    import { formatTemps } from "./js/quiz.js";
+    import { getProgression, BADGES } from "./js/xp.js";
+    import { animerCompteur } from "./js/animations.js";
+
+    initTheme();
+    initHeader();
+    initReveal();
+    initKonami();
+    rafraichirMenuSecrets();
+
+    // Affichage des statistiques + XP + badges
+    async function rafraichirStats() {
+      const data = await getDonnees();
+      const p = data.progression || {};
+
+      // -- Stats classiques --
+      document.querySelector('[data-stat="scoreMax"]').textContent =
+        p.scoreMax ? `${p.scoreMax}%` : "—";
+      document.querySelector('[data-stat="quizTermines"]').textContent =
+        p.quizTermines || "0";
+      document.querySelector('[data-stat="bonnesReponsesTotal"]').textContent =
+        p.bonnesReponsesTotal || "0";
+      document.querySelector('[data-stat="tempsMoyenSec"]').textContent =
+        p.tempsMoyenSec ? formatTemps(p.tempsMoyenSec) : "—";
+
+      // -- Bloc XP / rang --
+      const xpBloc = document.getElementById("xp-bloc");
+      xpBloc.style.display = "";
+      const prog = getProgression(data.xp || 0);
+      document.getElementById("xp-emoji").textContent = prog.rang.emoji;
+      document.getElementById("xp-niveau").textContent = prog.rang.niveau;
+      document.getElementById("xp-nom").textContent = prog.rang.nom;
+      const xpTotalEl = document.getElementById("xp-total");
+      animerCompteur(xpTotalEl, 0, data.xp || 0, 1200);
+      // Forcer le suffixe " XP" après l'animation
+      setTimeout(() => xpTotalEl.textContent = `${(data.xp || 0).toLocaleString("fr-FR")} XP`, 1250);
+
+      // Barre
+      const fill = document.getElementById("xp-bar-fill");
+      setTimeout(() => fill.style.width = `${prog.pourcentage}%`, 200);
+      if (prog.prochain) {
+        document.getElementById("xp-progress-current").textContent =
+          `${prog.xpDansNiveau} / ${prog.xpTotalNiveau} XP`;
+        document.getElementById("xp-progress-next").textContent =
+          `Prochain : ${prog.prochain.nom}`;
+      } else {
+        document.getElementById("xp-progress-current").textContent = "Niveau maximum atteint";
+        document.getElementById("xp-progress-next").textContent = "🐐 Légende du volley";
+      }
+
+      // Streak
+      const streakZone = document.getElementById("xp-streak-zone");
+      if (data.streak && data.streak > 0) {
+        streakZone.innerHTML = `<span class="streak-bloc${data.streak >= 3 ? ' actif' : ''}"><span class="flame">🔥</span> ${data.streak} j</span>`;
+      } else {
+        streakZone.textContent = "XP total";
+      }
+
+      // -- Badges --
+      const grid = document.getElementById("badges-grid");
+      const obtenus = data.badges || {};
+      grid.innerHTML = BADGES.map(b => `
+        <div class="badge-card ${obtenus[b.id] ? 'obtenu' : ''}" title="${b.desc}">
+          <div class="be">${b.emoji}</div>
+          <div class="bn">${b.nom}</div>
+          <div class="bd">${b.desc}</div>
+        </div>
+      `).join("");
+    }
+
+    observerAuth(async (user) => {
+      const info = document.getElementById("stats-info");
+      if (user) {
+        info.textContent = `Statistiques de ${user.displayName || "ton compte"} — synchronisées sur tous tes appareils.`;
+        const lnk = document.querySelector('[data-login-link]');
+        if (lnk) lnk.style.display = "none";
+      } else {
+        info.textContent = "Connecte-toi pour conserver ta progression sur tous tes appareils.";
+        const lnk = document.querySelector('[data-login-link]');
+        if (lnk) lnk.style.display = "";
+      }
+      rafraichirStats();
+    });
+  </script>
+</body>
+</html>
