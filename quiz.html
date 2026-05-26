@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Volley-ball — Volley Quiz</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><span class="ball"></span> Volley Quiz</a>
+      <nav class="nav">
+        <a href="index.html">Accueil</a>
+        <a href="quiz.html" class="active">Quiz</a>
+        <a href="leaderboard.html">Classement</a>
+        <a href="secret.html" data-secret-link style="display:none">✦ Secrets</a>
+      </nav>
+      <div class="user-zone" data-user-zone></div>
+      <button class="icon-btn" data-toggle-theme aria-label="Changer de thème">☾</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ÉCRAN 1 : Sélection de la difficulté -->
+    <section id="ecran-selection">
+      <div class="quiz-intro container">
+        <h1>Choisis ta difficulté</h1>
+        <p>10 questions tirées aléatoirement. Bonne chance — et chrono activé.</p>
+      </div>
+      <div class="difficulty-grid container">
+        <div class="difficulty-card" data-level="debutant">
+          <div class="name">Débutant</div>
+          <p class="desc">Les bases : règles, postes, terrain. Pour commencer en douceur.</p>
+        </div>
+        <div class="difficulty-card" data-level="intermediaire">
+          <div class="name">Intermédiaire</div>
+          <p class="desc">Tactique, vocabulaire, compétitions. Pour les vrais amateurs.</p>
+        </div>
+        <div class="difficulty-card" data-level="expert">
+          <div class="name">Expert</div>
+          <p class="desc">Histoire, records, joueurs cultes. Pour ceux qui connaissent tout.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÉCRAN 2 : Quiz en cours -->
+    <section id="ecran-quiz" class="container" style="display:none">
+      <div class="quiz-zone">
+        <div class="quiz-header-bar">
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+          <div class="quiz-meta">
+            <span>Question <strong id="q-num">1</strong>/<strong id="q-total">10</strong></span>
+            <span>Score <strong id="q-score">0</strong></span>
+            <span>⌚ <strong id="q-timer">00:00</strong></span>
+          </div>
+        </div>
+        <div class="question-card" id="question-card">
+          <!-- Rempli dynamiquement -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ÉCRAN 3 : Résultats -->
+    <section id="ecran-resultats" style="display:none">
+      <div class="results-screen">
+        <div class="score-circle">
+          <svg viewBox="0 0 180 180" width="180" height="180">
+            <circle class="track" cx="90" cy="90" r="78"></circle>
+            <circle class="fill" cx="90" cy="90" r="78" id="circle-fill"></circle>
+          </svg>
+          <div class="pct" id="result-pct">0%</div>
+        </div>
+        <div class="result-message" id="result-msg">—</div>
+        <div class="result-detail" id="result-detail">—</div>
+
+        <div class="result-stats">
+          <div class="result-stat">
+            <div class="v" id="r-correct">0</div>
+            <div class="l">Bonnes réponses</div>
+          </div>
+          <div class="result-stat">
+            <div class="v" id="r-total">0</div>
+            <div class="l">Questions</div>
+          </div>
+          <div class="result-stat">
+            <div class="v" id="r-time">00:00</div>
+            <div class="l">Temps</div>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn btn-accent" id="btn-rejouer">Rejouer</button>
+          <a href="index.html" class="btn btn-ghost">Accueil</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module">
+    import { initTheme, initHeader, toast, escapeHtml } from "./js/ui.js";
+    import { tirerQuiz, messageFinal, formatTemps } from "./js/quiz.js";
+    import { enregistrerResultatQuiz } from "./js/storage.js";
+    import { initKonami, rafraichirMenuSecrets } from "./js/easteregg.js";
+    import { animerLevelUp, notifierBadge } from "./js/animations.js";
+    import { listerQuestionsCustom } from "./js/admin.js";
+
+    initTheme();
+    initHeader();
+    initKonami();
+    rafraichirMenuSecrets();
+
+    // Charge les questions custom une fois au démarrage (cache pour ce quiz)
+    let questionsCustom = [];
+    listerQuestionsCustom().then(qs => { questionsCustom = qs; }).catch(() => {});
+
+    // -------- ÉTAT DU QUIZ --------
+    const state = {
+      niveau: null,
+      questions: [],
+      indice: 0,
+      score: 0,
+      tempsDebut: 0,
+      tempsTimer: null,
+      tempsEcoule: 0
+    };
+
+    const ecranSelection = document.getElementById("ecran-selection");
+    const ecranQuiz = document.getElementById("ecran-quiz");
+    const ecranResultats = document.getElementById("ecran-resultats");
+    const carteQuestion = document.getElementById("question-card");
+
+    // -------- SÉLECTION DIFFICULTÉ --------
+    document.querySelectorAll(".difficulty-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        demarrerQuiz(card.dataset.level);
+      });
+    });
+
+    function demarrerQuiz(niveau) {
+      state.niveau = niveau;
+      state.questions = tirerQuiz(niveau, 10, questionsCustom);
+      state.indice = 0;
+      state.score = 0;
+      state.tempsDebut = Date.now();
+      state.tempsEcoule = 0;
+
+      ecranSelection.style.display = "none";
+      ecranResultats.style.display = "none";
+      ecranQuiz.style.display = "";
+      document.getElementById("q-total").textContent = state.questions.length;
+      document.getElementById("q-score").textContent = "0";
+
+      // Démarrer le chrono
+      if (state.tempsTimer) clearInterval(state.tempsTimer);
+      state.tempsTimer = setInterval(() => {
+        state.tempsEcoule = Math.floor((Date.now() - state.tempsDebut) / 1000);
+        document.getElementById("q-timer").textContent = formatTemps(state.tempsEcoule);
+      }, 1000);
+
+      afficherQuestion();
+    }
+
+    // -------- AFFICHER UNE QUESTION --------
+    function afficherQuestion() {
+      const q = state.questions[state.indice];
+      const lettres = ["A", "B", "C", "D"];
+      document.getElementById("q-num").textContent = state.indice + 1;
+      document.getElementById("progress-fill").style.width =
+        `${((state.indice) / state.questions.length) * 100}%`;
+
+      carteQuestion.innerHTML = `
+        <div class="question-num">Question ${state.indice + 1}</div>
+        <div class="question-text">${escapeHtml(q.q)}</div>
+        <div class="answers">
+          ${q.choix.map((c, i) => `
+            <button class="answer-btn" data-i="${i}">
+              <span class="letter">${lettres[i]}</span>
+              <span>${escapeHtml(c)}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div id="zone-explication"></div>
+      `;
+
+      carteQuestion.querySelectorAll(".answer-btn").forEach((b) =>
+        b.addEventListener("click", () => repondre(parseInt(b.dataset.i, 10)))
+      );
+    }
+
+    // -------- TRAITER LA RÉPONSE --------
+    function repondre(indexChoisi) {
+      const q = state.questions[state.indice];
+      const boutons = carteQuestion.querySelectorAll(".answer-btn");
+      boutons.forEach((b) => b.disabled = true);
+
+      const correct = indexChoisi === q.bonne;
+      if (correct) {
+        state.score++;
+        document.getElementById("q-score").textContent = state.score;
+        boutons[indexChoisi].classList.add("correct");
+      } else {
+        boutons[indexChoisi].classList.add("wrong");
+        boutons[q.bonne].classList.add("correct");
+      }
+
+      // Afficher l'explication + bouton "Suivante"
+      const dernier = state.indice === state.questions.length - 1;
+      document.getElementById("zone-explication").innerHTML = `
+        <div class="explanation">
+          <strong>${correct ? "Bonne réponse !" : "Faux."}</strong> ${escapeHtml(q.explication)}
+        </div>
+        <div class="quiz-controls">
+          <button class="btn btn-accent" id="btn-suivante">${dernier ? "Voir mes résultats" : "Question suivante"} →</button>
+        </div>
+      `;
+      document.getElementById("btn-suivante").addEventListener("click", suivante);
+    }
+
+    function suivante() {
+      state.indice++;
+      if (state.indice >= state.questions.length) {
+        finQuiz();
+      } else {
+        afficherQuestion();
+      }
+    }
+
+    // -------- FIN DU QUIZ --------
+    async function finQuiz() {
+      clearInterval(state.tempsTimer);
+      ecranQuiz.style.display = "none";
+      ecranResultats.style.display = "";
+
+      const total = state.questions.length;
+      const pct = Math.round((state.score / total) * 100);
+      const msg = messageFinal(pct);
+
+      // Animation cercle
+      const circle = document.getElementById("circle-fill");
+      const circumference = 2 * Math.PI * 78;
+      circle.style.strokeDasharray = circumference;
+      circle.style.strokeDashoffset = circumference;
+      // Force reflow puis applique l'offset
+      requestAnimationFrame(() => {
+        circle.style.strokeDashoffset = circumference * (1 - pct / 100);
+      });
+
+      // Animation du pourcentage qui monte
+      let p = 0;
+      const interv = setInterval(() => {
+        p++;
+        document.getElementById("result-pct").textContent = `${p}%`;
+        if (p >= pct) clearInterval(interv);
+      }, 14);
+
+      document.getElementById("result-msg").textContent = msg.titre;
+      document.getElementById("result-detail").textContent =
+        `Niveau ${state.niveau} — ${state.score} bonnes réponses sur ${total}`;
+      document.getElementById("r-correct").textContent = state.score;
+      document.getElementById("r-total").textContent = total;
+      document.getElementById("r-time").textContent = formatTemps(state.tempsEcoule);
+
+      // Sauvegarde + récupération des résultats riches (XP, level-up, badges)
+      try {
+        const resultat = await enregistrerResultatQuiz({
+          score: state.score,
+          total,
+          tempsSec: state.tempsEcoule,
+          niveau: state.niveau
+        });
+
+        // Injection du bloc XP gagnée dans l'écran de résultats
+        const xpBloc = document.createElement("div");
+        xpBloc.className = "xp-gain-bloc";
+        const det = resultat.xpGagnee;
+        const detailParts = [`${det.base} XP base`];
+        if (det.bonusTemps) detailParts.push(`+${det.bonusTemps} rapidité`);
+        if (det.bonusFin) detailParts.push(`+${det.bonusFin} performance`);
+        xpBloc.innerHTML = `
+          <div class="gros">+${det.total} XP</div>
+          <div class="detail">${detailParts.join(" • ")}</div>
+        `;
+        // On l'insère juste après les result-stats
+        const resultStats = document.querySelector(".result-stats");
+        resultStats.after(xpBloc);
+
+        // Streak
+        if (resultat.streakChange && resultat.streak > 1) {
+          toast(`🔥 ${resultat.streak} jours consécutifs !`, "success");
+        }
+
+        // Animation LEVEL UP (après un petit délai pour laisser voir le score)
+        if (resultat.niveauUp) {
+          setTimeout(() => {
+            animerLevelUp(resultat.ancienRang, resultat.nouveauRang);
+          }, 1400);
+        }
+
+        // Notifications de badges (échelonnées)
+        resultat.nouveauxBadges.forEach((b, i) => {
+          notifierBadge(b, 2200 + i * 800);
+        });
+
+        toast("Progression sauvegardée", "success");
+      } catch (err) {
+        console.error(err);
+        toast("Sauvegarde locale uniquement", "info");
+      }
+    }
+
+    // -------- REJOUER --------
+    document.getElementById("btn-rejouer").addEventListener("click", () => {
+      ecranResultats.style.display = "none";
+      ecranSelection.style.display = "";
+    });
+  </script>
+</body>
+</html>
