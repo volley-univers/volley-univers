@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classement — Volley Quiz</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo"><span class="ball"></span> Volley Quiz</a>
+      <nav class="nav">
+        <a href="../index.html">Accueil</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="leaderboard.html" class="active">Classement</a>
+        <a href="secret.html" data-secret-link style="display:none">✦ Secrets</a>
+      </nav>
+      <div class="user-zone" data-user-zone></div>
+      <button class="icon-btn" data-toggle-theme aria-label="Changer de thème">☾</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="container" style="padding: 60px 0 30px;">
+      <h1 style="font-family:'Bebas Neue', sans-serif; font-size: 3.5rem; color: var(--primary); margin-bottom: 10px;">
+        Classement mondial
+      </h1>
+      <p style="color: var(--text-soft); max-width: 600px;">
+        Top 50 des joueurs par XP cumulée. Joue, gagne de l'XP, grimpe les rangs.
+      </p>
+    </section>
+
+    <section class="container" style="margin-bottom: 60px;">
+      <div class="leaderboard" id="leaderboard">
+        <div class="lb-row head">
+          <div>Pos</div>
+          <div>Joueur</div>
+          <div style="text-align:right;">XP</div>
+          <div style="text-align:right;">Niveau</div>
+        </div>
+        <div id="lb-body">
+          <div class="lb-row">
+            <div class="lb-pos">—</div>
+            <div class="lb-player">
+              <span class="lb-pseudo">Chargement…</span>
+            </div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+      <p id="lb-info" style="color: var(--text-soft); font-size: 0.88rem; margin-top: 16px; text-align: center;"></p>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initTheme, initHeader } from "../js/ui.js";
+    import { initKonami, rafraichirMenuSecrets } from "../js/easteregg.js";
+    import { observerAuth } from "../js/auth.js";
+    import { getLeaderboard } from "../js/storage.js";
+    import { getRang } from "../js/xp.js";
+    import { auth, firebaseConfigured } from "../js/firebase.js";
+
+    initTheme();
+    initHeader();
+    initKonami();
+    rafraichirMenuSecrets();
+
+    const body = document.getElementById("lb-body");
+    const info = document.getElementById("lb-info");
+
+    async function charger() {
+      if (!firebaseConfigured) {
+        body.innerHTML = `
+          <div class="lb-row"><div class="lb-pos">—</div>
+            <div class="lb-player"><span class="lb-pseudo">Firebase non configuré</span>
+            <span class="lb-rang">Édite js/firebase.js</span></div>
+            <div></div><div></div></div>`;
+        return;
+      }
+
+      const liste = await getLeaderboard(50);
+      const monUid = auth.currentUser?.uid;
+
+      if (!liste.length) {
+        body.innerHTML = `
+          <div class="lb-row"><div class="lb-pos">—</div>
+            <div class="lb-player"><span class="lb-pseudo">Aucun joueur classé pour l'instant</span>
+            <span class="lb-rang">Sois le premier à finir un quiz !</span></div>
+            <div></div><div></div></div>`;
+        return;
+      }
+
+      body.innerHTML = liste.map((j, i) => {
+        const rang = getRang(j.xp || 0);
+        const pos = i + 1;
+        const medaille = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : `#${pos}`;
+        const isMe = j.uid === monUid;
+        return `
+          <div class="lb-row ${isMe ? 'me' : ''}">
+            <div class="lb-pos">${medaille}</div>
+            <div class="lb-player">
+              <span class="lb-pseudo">${escapeHtml(j.pseudo || 'Joueur')}${isMe ? ' (toi)' : ''}</span>
+              <span class="lb-rang">${rang.emoji} ${rang.nom}</span>
+            </div>
+            <div class="lb-xp">${(j.xp || 0).toLocaleString("fr-FR")} XP</div>
+            <div class="lb-niv">Niv ${j.niveau || rang.niveau}</div>
+          </div>
+        `;
+      }).join("");
+
+      info.textContent = `${liste.length} joueur${liste.length > 1 ? 's' : ''} classé${liste.length > 1 ? 's' : ''}`;
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c =>
+        ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    }
+
+    // Recharge quand l'état d'auth change (pour afficher "toi")
+    observerAuth(() => charger());
+    charger();
+  </script>
+</body>
+</html>
