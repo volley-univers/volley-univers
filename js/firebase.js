@@ -31,12 +31,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebas
 
 // === REMPLACE CES VALEURS PAR TA PROPRE CONFIG FIREBASE ===
 const firebaseConfig = {
-  apiKey: "REMPLACE_PAR_TA_CLE_API",
-  authDomain: "REMPLACE.firebaseapp.com",
-  projectId: "REMPLACE_PAR_TON_PROJECT_ID",
-  storageBucket: "REMPLACE.appspot.com",
-  messagingSenderId: "REMPLACE_PAR_TON_SENDER_ID",
-  appId: "REMPLACE_PAR_TON_APP_ID"
+  apiKey: "AIzaSyC6czcRjGgU4Tg-QKnkTAd4VjghJgHSDV0",
+  authDomain: "volley-quizz.firebaseapp.com",
+  projectId: "volley-quizz",
+  storageBucket: "volley-quizz.firebasestorage.app",
+  messagingSenderId: "185677799344",
+  appId: "1:185677799344:web:8aed5219af2231fb4f4075",
+  measurementId: "G-HGYYKS05DM"
 };
 // ==========================================================
 
