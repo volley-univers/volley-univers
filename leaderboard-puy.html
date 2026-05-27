@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classement Secret — Puy du Fou</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="puy-body">
+
+  <div class="puy-bg"></div>
+  <div class="puy-embers" id="puy-embers"></div>
+
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo"><span class="ball"></span> Volley Quiz</a>
+      <nav class="nav">
+        <a href="index.html">Accueil</a>
+        <a href="quiz.html">Quiz</a>
+        <a href="leaderboard.html">Classement</a>
+        <a href="secret.html" data-secret-link>✦ Secrets</a>
+      </nav>
+      <div class="user-zone" data-user-zone></div>
+      <button class="icon-btn" data-toggle-theme aria-label="Changer de thème">☾</button>
+    </div>
+  </header>
+
+  <!-- Écran de blocage -->
+  <main id="bloque" class="puy-content" style="display:none">
+    <section class="puy-hero">
+      <div class="puy-crest">🔐</div>
+      <h1 class="puy-title">Royaume scellé</h1>
+      <p style="color: var(--puy-parchment2); font-style: italic; margin: 20px auto; max-width: 480px;">
+        Le classement secret est réservé aux initiés des Secrets du Puy du Fou.
+      </p>
+      <a href="index.html" class="btn-puy-ghost" style="margin-top: 20px; display: inline-block; text-decoration: none;">Retour</a>
+    </section>
+  </main>
+
+  <!-- Contenu -->
+  <main id="contenu" class="puy-content" style="display:none">
+    <section class="puy-hero">
+      <div class="puy-crest">🏆</div>
+      <h1 class="puy-title">Le Grand Tournoi</h1>
+      <p class="puy-ornament">✦ &nbsp; ─── &nbsp; ✦</p>
+      <p class="puy-sub">Classement secret du Royaume</p>
+      <p style="color: var(--puy-parchment2); font-style: italic; margin-top: 18px; max-width: 540px; margin-left: auto; margin-right: auto;">
+        Seuls ceux qui ont percé les Secrets du Puy du Fou figurent en ces lieux.
+        <br/>Les meilleurs au sommet.
+      </p>
+    </section>
+
+    <div class="puy-leaderboard">
+      <div class="puy-lb-table" id="puy-lb-body">
+        <div class="puy-lb-row">
+          <div class="puy-lb-rank">—</div>
+          <div class="puy-lb-name">Chargement…</div>
+          <div class="puy-lb-xp"></div>
+        </div>
+      </div>
+      <p id="puy-lb-info" style="text-align: center; margin-top: 20px; color: rgba(245, 217, 138, 0.55); font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.08em;"></p>
+
+      <div style="text-align: center; margin: 30px 0 60px;">
+        <a href="secret.html" class="btn-puy-ghost" style="text-decoration: none;">← Retour aux Secrets</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initTheme, initHeader } from "./js/ui.js";
+    import { initKonami, rafraichirMenuSecrets, ID_SECRET_KONAMI } from "./js/easteregg.js";
+    import { observerAuth } from "./js/auth.js";
+    import { estDebloque, getLeaderboardPuy } from "./js/storage.js";
+    import { getGradePuy } from "./js/puy.js";
+    import { auth, firebaseConfigured } from "./js/firebase.js";
+
+    initTheme();
+    initHeader();
+    initKonami();
+    rafraichirMenuSecrets();
+
+    // Génération braises
+    (function genererBraises() {
+      const cont = document.getElementById("puy-embers");
+      for (let i = 0; i < 25; i++) {
+        const e = document.createElement("div");
+        e.className = "puy-ember";
+        const size = 3 + Math.random() * 5;
+        e.style.width = `${size}px`;
+        e.style.height = `${size}px`;
+        e.style.left = `${Math.random() * 100}%`;
+        e.style.setProperty("--drift", `${(Math.random() - 0.5) * 200}px`);
+        e.style.animationDuration = `${8 + Math.random() * 12}s`;
+        e.style.animationDelay = `${Math.random() * 8}s`;
+        cont.appendChild(e);
+      }
+    })();
+
+    // Vérification accès
+    setTimeout(async () => {
+      const ok = await estDebloque(ID_SECRET_KONAMI);
+      if (!ok) {
+        document.getElementById("bloque").style.display = "";
+        return;
+      }
+      document.getElementById("contenu").style.display = "";
+      charger();
+    }, 500);
+
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c =>
+        ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    }
+
+    async function charger() {
+      const body = document.getElementById("puy-lb-body");
+      const info = document.getElementById("puy-lb-info");
+
+      if (!firebaseConfigured) {
+        body.innerHTML = `<div class="puy-lb-row"><div class="puy-lb-rank">—</div><div class="puy-lb-name">Firebase non configuré</div><div class="puy-lb-xp"></div></div>`;
+        return;
+      }
+
+      const liste = await getLeaderboardPuy(50);
+      const monUid = auth.currentUser?.uid;
+
+      if (!liste.length) {
+        body.innerHTML = `
+          <div class="puy-lb-row">
+            <div class="puy-lb-rank">—</div>
+            <div class="puy-lb-name">
+              Aucun joueur classé pour l'instant
+              <span class="grade">Sois le premier à remporter un quiz Puy du Fou !</span>
+            </div>
+            <div class="puy-lb-xp"></div>
+          </div>`;
+        return;
+      }
+
+      body.innerHTML = liste.map((j, i) => {
+        const grade = getGradePuy(j.xp || 0);
+        const pos = i + 1;
+        const cls = pos === 1 ? "gold" : pos === 2 ? "silver" : pos === 3 ? "bronze" : "";
+        const isMe = j.uid === monUid;
+        const medaille = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : `#${pos}`;
+        return `
+          <div class="puy-lb-row ${cls} ${isMe ? 'me' : ''}">
+            <div class="puy-lb-rank">${medaille}</div>
+            <div class="puy-lb-name">
+              ${escapeHtml(j.pseudo || 'Inconnu')}${isMe ? ' <small style="color:var(--puy-gold)">(vous)</small>' : ''}
+              <span class="grade">${grade.icon} ${grade.name}</span>
+            </div>
+            <div class="puy-lb-xp">${(j.xp || 0).toLocaleString("fr-FR")}</div>
+          </div>
+        `;
+      }).join("");
+
+      info.textContent = `${liste.length} initié${liste.length > 1 ? 's' : ''} classé${liste.length > 1 ? 's' : ''} dans le Royaume`;
+    }
+
+    observerAuth(() => charger());
+  </script>
+</body>
+</html>
